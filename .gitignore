@@ -1,0 +1,10 @@
+.DS_Store
+build/
+cpp/build/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+__pycache__/
+*.pyc
+data/*.ply
+data/*.pcd
