@@ -6,6 +6,9 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <vector>
 #include <algorithm>
+#include <chrono>
+#include <iostream>
+#include <iomanip>
 
 // 1. 结构体改名，防止与 FEC1.h 冲突
 struct PointIndex_Tag_FEC_Union {
@@ -21,13 +24,19 @@ inline bool NumberTag_FEC_Union(const PointIndex_Tag_FEC_Union& p0, const PointI
 // 3. 极速版 FEC_Union (并查集重构)
 std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int min_component_size, double tolorance, int max_n) {
     using namespace std;
+    using Clock = std::chrono::steady_clock;
+
+    auto t_total_begin = Clock::now();
 
     if (cloud->size() < min_component_size) {
         return {};
     }
 
+    auto tb0 = Clock::now();
     pcl::KdTreeFLANN<pcl::PointXYZ> cloud_kdtreeflann;
     cloud_kdtreeflann.setInputCloud(cloud);
+    auto tb1 = Clock::now();
+    double build_ms = std::chrono::duration<double, std::milli>(tb1 - tb0).count();
 
     const int cloud_size = static_cast<int>(cloud->size());
 
@@ -66,25 +75,34 @@ std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr clo
     pointSquaredDistance.reserve(max_n);
 
     vector<bool> searched(cloud_size, false);
+    double search_ms = 0.0;
+    double merge_ms = 0.0;
 
     for (int i = 0; i < cloud_size; ++i) {
         if (!searched[i]) {
             pointIdx.clear();
             pointSquaredDistance.clear();
             
+            auto ts0 = Clock::now();
             cloud_kdtreeflann.radiusSearch(cloud->points[i], tolorance, pointIdx, pointSquaredDistance, max_n);
+            auto ts1 = Clock::now();
+            search_ms += std::chrono::duration<double, std::milli>(ts1 - ts0).count();
             
+            auto tm0 = Clock::now();
             for (int j = 0; j < static_cast<int>(pointIdx.size()); ++j) {
                 int idx = pointIdx[j];
                 unite(i, idx);         
                 searched[idx] = true;  
             }
+            auto tm1 = Clock::now();
+            merge_ms += std::chrono::duration<double, std::milli>(tm1 - tm0).count();
         }
     }
 
     // ==========================================
     // 整理与提取
     // ==========================================
+    auto tf0 = Clock::now();
     vector<PointIndex_Tag_FEC_Union> indices_tags(cloud_size);
     for (int i = 0; i < cloud_size; ++i) {
         indices_tags[i].nPointIndex = i;
@@ -117,6 +135,18 @@ std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr clo
         for (int j = begin_index; j < cloud_size; ++j) inliers.indices.push_back(indices_tags[j].nPointIndex);
         cluster_indices.push_back(inliers);
     }
+
+    auto tf1 = Clock::now();
+    const double final_ms = std::chrono::duration<double, std::milli>(tf1 - tf0).count();
+    const double total_ms = std::chrono::duration<double, std::milli>(tf1 - t_total_begin).count();
+
+    std::cout << std::fixed << std::setprecision(3)
+              << "FEC_Union total= " << total_ms << " ms "
+              << "build= " << build_ms << " ms "
+              << "search= " << search_ms << " ms "
+              << "merge= " << merge_ms << " ms "
+              << "final= " << final_ms << " ms "
+              << "clusters=" << cluster_indices.size() << "\n";
 
     return cluster_indices;
 }
