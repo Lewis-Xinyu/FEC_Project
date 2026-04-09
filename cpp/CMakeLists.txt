@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(FEC_Project)
+set(CMAKE_BUILD_TYPE "Release")
 
 # 1. 寻找核心点云库 PCL (你已经成功了)
 find_package(PCL REQUIRED)
