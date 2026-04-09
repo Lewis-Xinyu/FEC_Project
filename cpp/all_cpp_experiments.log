@@ -1,0 +1,176 @@
+
+Dataset: 001.ply Points: 49740
+Algorithm         Clusters
+---------         --------
+FEC total= 28.474 ms build= 6.839 ms search= 10.359 ms merge= 9.955 ms final= 0.891 ms clusters=45
+FEC               45
+FEC1 total= 14.738 ms build= 5.220 ms search= 7.399 ms merge= 0.959 ms final= 0.718 ms clusters=45
+FEC1              45
+FEC_Union total= 14.825 ms build= 5.065 ms search= 7.718 ms merge= 0.616 ms final= 1.027 ms clusters=45
+FEC_Union         45
+EC total= 52.868 ms build= 5.925 ms search= 46.943 ms merge= 0.000 ms final= 0.000 ms clusters=40
+EC                40
+RG total= 249.948 ms build= 0.002 ms search= 117.443 ms merge= 132.503 ms final= 0.000 ms clusters=40
+RG                40
+FEC_Block total= 12.215 ms build= 2.173 ms search= 2.305 ms merge= 2.801 ms final= 1.473 ms clusters=42
+FEC_Block         42
+FEC1_Block total= 12.418 ms build= 2.647 ms search= 0.238 ms merge= 3.216 ms final= 2.263 ms clusters=42
+FEC1_Block        42
+FEC_Union_Block total= 11.125 ms build= 2.165 ms search= 0.276 ms merge= 2.851 ms final= 0.925 ms clusters=42
+FEC_Union_Block   42
+EC_Block total= 23.051 ms build= 2.498 ms search= 3.922 ms merge= 3.144 ms final= 0.847 ms clusters=40
+EC_Block          40
+
+Dataset: 015.ply Points: 750752
+Algorithm         Clusters
+---------         --------
+FEC total= 2018.693 ms build= 97.675 ms search= 124.484 ms merge= 1782.373 ms final= 10.151 ms clusters=243
+FEC               243
+FEC1 total= 229.932 ms build= 92.815 ms search= 111.142 ms merge= 12.277 ms final= 8.973 ms clusters=243
+FEC1              243
+FEC_Union total= 232.735 ms build= 92.754 ms search= 110.849 ms merge= 12.705 ms final= 12.635 ms clusters=243
+FEC_Union         243
+EC total= 1042.634 ms build= 93.348 ms search= 949.286 ms merge= 0.000 ms final= 0.000 ms clusters=225
+EC                225
+RG total= 4554.432 ms build= 0.002 ms search= 2147.247 ms merge= 2407.184 ms final= 0.000 ms clusters=370
+RG                370
+FEC_Block total= 156.318 ms build= 32.160 ms search= 3.826 ms merge= 45.833 ms final= 17.546 ms clusters=239
+FEC_Block         239
+FEC1_Block total= 169.380 ms build= 38.183 ms search= 11.115 ms merge= 48.099 ms final= 18.478 ms clusters=239
+FEC1_Block        239
+FEC_Union_Block total= 152.713 ms build= 31.308 ms search= 4.432 ms merge= 43.776 ms final= 19.724 ms clusters=239
+FEC_Union_Block   239
+EC_Block total= 365.570 ms build= 33.473 ms search= 10.697 ms merge= 46.428 ms final= 15.033 ms clusters=225
+EC_Block          225
+
+Dataset: 028.ply Points: 1397202
+Algorithm         Clusters
+---------         --------
+FEC total= 6350.746 ms build= 189.607 ms search= 226.670 ms merge= 5906.795 ms final= 20.297 ms clusters=373
+FEC               373
+FEC1 total= 448.614 ms build= 184.856 ms search= 213.455 ms merge= 23.105 ms final= 17.808 ms clusters=373
+FEC1              373
+FEC_Union total= 452.881 ms build= 183.947 ms search= 212.506 ms merge= 24.734 ms final= 24.623 ms clusters=373
+FEC_Union         373
+EC total= 2033.807 ms build= 193.423 ms search= 1840.384 ms merge= 0.000 ms final= 0.000 ms clusters=362
+EC                362
+RG total= 8582.403 ms build= 0.002 ms search= 3994.434 ms merge= 4587.967 ms final= 0.000 ms clusters=651
+RG                651
+FEC_Block total= 275.797 ms build= 57.900 ms search= 1.349 ms merge= 84.638 ms final= 21.688 ms clusters=368
+FEC_Block         368
+FEC1_Block total= 287.645 ms build= 58.607 ms search= 2.896 ms merge= 86.142 ms final= 22.987 ms clusters=368
+FEC1_Block        368
+FEC_Union_Block total= 287.174 ms build= 64.438 ms search= 9.556 ms merge= 81.879 ms final= 29.140 ms clusters=368
+FEC_Union_Block   368
+EC_Block total= 661.645 ms build= 58.083 ms search= 12.147 ms merge= 87.270 ms final= 24.790 ms clusters=362
+EC_Block          362
+
+Dataset: 046.ply Points: 2288885
+Algorithm         Clusters
+---------         --------
+FEC total= 17016.020 ms build= 315.611 ms search= 402.826 ms merge= 16249.359 ms final= 35.526 ms clusters=639
+FEC               639
+FEC1 total= 769.757 ms build= 311.199 ms search= 369.052 ms merge= 40.376 ms final= 32.044 ms clusters=639
+FEC1              639
+FEC_Union total= 774.205 ms build= 324.333 ms search= 353.502 ms merge= 42.171 ms final= 42.427 ms clusters=639
+FEC_Union         639
+EC total= 3400.028 ms build= 309.236 ms search= 3090.792 ms merge= 0.000 ms final= 0.000 ms clusters=609
+EC                609
+RG total= 14340.646 ms build= 0.002 ms search= 6606.719 ms merge= 7733.925 ms final= 0.000 ms clusters=1124
+RG                1124
+FEC_Block total= 475.771 ms build= 94.794 ms search= 4.551 ms merge= 138.905 ms final= 38.566 ms clusters=627
+FEC_Block         627
+FEC1_Block total= 448.628 ms build= 84.551 ms search= 2.098 ms merge= 135.195 ms final= 35.324 ms clusters=627
+FEC1_Block        627
+FEC_Union_Block total= 434.314 ms build= 83.997 ms search= 8.485 ms merge= 132.666 ms final= 36.044 ms clusters=627
+FEC_Union_Block   627
+EC_Block total= 982.737 ms build= 84.416 ms search= 8.437 ms merge= 132.413 ms final= 35.537 ms clusters=609
+EC_Block          609
+
+Dataset: 066.ply Points: 3301629
+Algorithm         Clusters
+---------         --------
+FEC total= 36627.789 ms build= 465.388 ms search= 616.591 ms merge= 35464.020 ms final= 62.114 ms clusters=928
+FEC               928
+FEC1 total= 1104.577 ms build= 463.691 ms search= 516.056 ms merge= 56.204 ms final= 46.536 ms clusters=928
+FEC1              928
+FEC_Union total= 1119.911 ms build= 458.152 ms search= 521.674 ms merge= 61.460 ms final= 61.576 ms clusters=928
+FEC_Union         928
+EC total= 4943.494 ms build= 465.719 ms search= 4477.775 ms merge= 0.000 ms final= 0.000 ms clusters=882
+EC                882
+RG total= 20776.853 ms build= 0.002 ms search= 9542.721 ms merge= 11234.130 ms final= 0.000 ms clusters=1573
+RG                1573
+FEC_Block total= 658.677 ms build= 133.255 ms search= 2.053 ms merge= 208.705 ms final= 52.419 ms clusters=914
+FEC_Block         914
+FEC1_Block total= 663.910 ms build= 128.000 ms search= 2.144 ms merge= 205.829 ms final= 51.708 ms clusters=914
+FEC1_Block        914
+FEC_Union_Block total= 638.310 ms build= 128.136 ms search= 2.704 ms merge= 192.767 ms final= 52.077 ms clusters=914
+FEC_Union_Block   914
+EC_Block total= 1416.203 ms build= 126.485 ms search= 10.965 ms merge= 191.603 ms final= 50.891 ms clusters=882
+EC_Block          882
+
+Dataset: 084.ply Points: 4208486
+Algorithm         Clusters
+---------         --------
+FEC total= 59879.623 ms build= 606.172 ms search= 847.893 ms merge= 58319.799 ms final= 79.255 ms clusters=1249
+FEC               1249
+FEC1 total= 1422.708 ms build= 599.285 ms search= 657.799 ms merge= 73.992 ms final= 62.546 ms clusters=1249
+FEC1              1249
+FEC_Union total= 1429.775 ms build= 590.949 ms search= 657.294 ms merge= 75.278 ms final= 84.440 ms clusters=1249
+FEC_Union         1249
+EC total= 6288.344 ms build= 591.047 ms search= 5697.297 ms merge= 0.000 ms final= 0.000 ms clusters=1172
+EC                1172
+RG total= 26713.155 ms build= 0.002 ms search= 12257.968 ms merge= 14455.184 ms final= 0.000 ms clusters=1930
+RG                1930
+FEC_Block total= 846.734 ms build= 172.615 ms search= 3.285 ms merge= 271.012 ms final= 71.530 ms clusters=1222
+FEC_Block         1222
+FEC1_Block total= 847.502 ms build= 163.572 ms search= 8.127 ms merge= 256.807 ms final= 67.998 ms clusters=1222
+FEC1_Block        1222
+FEC_Union_Block total= 817.309 ms build= 157.230 ms search= 2.978 ms merge= 250.427 ms final= 68.770 ms clusters=1222
+FEC_Union_Block   1222
+EC_Block total= 1815.235 ms build= 155.987 ms search= 9.980 ms merge= 251.326 ms final= 65.644 ms clusters=1172
+EC_Block          1172
+
+Dataset: car.ply Points: 55048
+Algorithm         Clusters
+---------         --------
+FEC total= 18.120 ms build= 6.115 ms search= 8.599 ms merge= 2.894 ms final= 0.346 ms clusters=12
+FEC               12
+FEC1 total= 15.441 ms build= 5.980 ms search= 8.324 ms merge= 0.660 ms final= 0.311 ms clusters=12
+FEC1              12
+FEC_Union total= 15.957 ms build= 6.031 ms search= 8.158 ms merge= 1.107 ms final= 0.519 ms clusters=12
+FEC_Union         12
+EC total= 183.757 ms build= 5.960 ms search= 177.797 ms merge= 0.000 ms final= 0.000 ms clusters=12
+EC                12
+RG total= 330.279 ms build= 0.002 ms search= 160.598 ms merge= 169.679 ms final= 0.000 ms clusters=36
+RG                36
+FEC_Block total= 8.294 ms build= 1.858 ms search= 1.356 ms merge= 2.513 ms final= 1.110 ms clusters=12
+FEC_Block         12
+FEC1_Block total= 8.041 ms build= 1.815 ms search= 1.333 ms merge= 2.366 ms final= 1.100 ms clusters=12
+FEC1_Block        12
+FEC_Union_Block total= 8.106 ms build= 1.849 ms search= 1.323 ms merge= 2.455 ms final= 1.124 ms clusters=12
+FEC_Union_Block   12
+EC_Block total= 47.849 ms build= 1.695 ms search= 25.762 ms merge= 2.207 ms final= 0.879 ms clusters=12
+EC_Block          12
+
+Dataset: street.ply Points: 1129267
+Algorithm         Clusters
+---------         --------
+FEC total= 2294.439 ms build= 151.859 ms search= 196.659 ms merge= 1924.925 ms final= 15.317 ms clusters=220
+FEC               220
+FEC1 total= 377.939 ms build= 148.136 ms search= 192.103 ms merge= 16.207 ms final= 14.245 ms clusters=220
+FEC1              220
+FEC_Union total= 384.782 ms build= 148.510 ms search= 190.805 ms merge= 25.258 ms final= 15.349 ms clusters=220
+FEC_Union         220
+EC total= 2740.035 ms build= 149.095 ms search= 2590.939 ms merge= 0.000 ms final= 0.000 ms clusters=207
+EC                207
+RG total= 7516.960 ms build= 0.002 ms search= 3477.362 ms merge= 4039.596 ms final= 0.000 ms clusters=372
+RG                372
+FEC_Block total= 227.051 ms build= 58.304 ms search= 4.259 ms merge= 62.074 ms final= 18.476 ms clusters=216
+FEC_Block         216
+FEC1_Block total= 232.546 ms build= 52.573 ms search= 7.453 ms merge= 64.183 ms final= 19.027 ms clusters=216
+FEC1_Block        216
+FEC_Union_Block total= 230.974 ms build= 59.962 ms search= 2.524 ms merge= 63.862 ms final= 19.055 ms clusters=216
+FEC_Union_Block   216
+EC_Block total= 725.316 ms build= 53.084 ms search= 41.586 ms merge= 64.216 ms final= 18.029 ms clusters=207
+EC_Block          207
