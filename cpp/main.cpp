@@ -14,12 +14,15 @@
 #include "FEC.h"
 #include "FEC_Block.h"
 #include "FEC1.h"
+#include "FEC1_1.h"
 #include "EC.h"
 #include "EC_block.h"
 #include "RG.h"
 #include "FEC_Union.h"
 #include "FEC_Union_Block.h"
+#include "FEC_Union_Grid_Block.h"
 #include "FEC1_improved_block_fixed.h"
+#include "Voxel_FEC1.h"
 using namespace std;
 
 // ==========================================
@@ -74,18 +77,21 @@ int main() {
     // 单算法模式下可选算法：
     // "FEC"              - 最早的 FEC，原始标签传播版本
     // "FEC1"             - 使用哈希表优化标签合并
+    // "FEC1_1"           - FEC1_1 版本
     // "FEC_Union"        - 使用并查集替代标签/哈希表合并
     // "EC"               - PCL 原生 EuclideanClusterExtraction
     // "RG"               - Region Growing
     // "FEC_Block"        - FEC 的分块并行版本
     // "FEC1_Block"       - FEC1 的分块并行版本
     // "FEC_Union_Block"  - FEC_Union 的分块并行版本
+    // "FEC_Union_Grid_Block" - FEC_Union 的网格哈希分块并行版本
+    // "Voxel_FEC1"       - 基于体素哈希搜索的 FEC1 版本
     // "EC_Block"         - EC 的分块并行版本
     // 单算法模式下，直接修改这两个字符串即可：
     // single_dataset_path 选择数据集
     // single_algorithm    选择算法
-    const std::string single_algorithm = "FEC_Union_Block";
-    const std::string single_dataset_path = "./data/street.ply";
+    const std::string single_algorithm = "Voxel_FEC1";
+    const std::string single_dataset_path = "./data/046.ply";
     // 通用参数
     int min_cluster_size = 100;
     double tolerance = 0.2; 
@@ -99,12 +105,15 @@ int main() {
     const std::vector<std::string> algorithms = {
         "FEC",
         "FEC1",
+        "FEC1_1",
         "FEC_Union",
         "EC",
         "RG",
         "FEC_Block",
         "FEC1_Block",
         "FEC_Union_Block",
+        "FEC_Union_Grid_Block",
+        "Voxel_FEC1",
         "EC_Block"
     };
 
@@ -130,6 +139,9 @@ int main() {
         if (current_algorithm == "FEC1") {
             return FEC1(cloud, min_cluster_size, tolerance, max_n);
         }
+        if (current_algorithm == "FEC1_1") {
+            return FEC1_1(cloud, min_cluster_size, tolerance, max_n);
+        }
         if (current_algorithm == "EC") {
             return EC(cloud, tolerance, min_cluster_size);
         }
@@ -144,6 +156,12 @@ int main() {
         }
         if (current_algorithm == "FEC_Union_Block") {
             return FEC_Union_Block(cloud, min_cluster_size, tolerance, max_n);
+        }
+        if (current_algorithm == "FEC_Union_Grid_Block") {
+            return FEC_Union_Grid_Block(cloud, min_cluster_size, tolerance, max_n);
+        }
+        if (current_algorithm == "Voxel_FEC1") {
+            return Voxel_FEC1(cloud, min_cluster_size, tolerance, max_n);
         }
         if (current_algorithm == "FEC1_Block") {
             return FEC1_Block(cloud, min_cluster_size, tolerance, max_n);
@@ -173,12 +191,12 @@ int main() {
 
             const std::string dataset_name = std::filesystem::path(dataset_path).filename().string();
             cout << "\nDataset: " << dataset_name << " Points: " << cloud->size() << endl;
-            cout << left << setw(18) << "Algorithm" << "Clusters" << endl;
-            cout << left << setw(18) << "---------" << "--------" << endl;
+            cout << left << setw(24) << "Algorithm" << "Clusters" << endl;
+            cout << left << setw(24) << "---------" << "--------" << endl;
 
             for (const auto& algorithm : algorithms) {
                 std::vector<pcl::PointIndices> cluster_indices = run_algorithm(cloud, algorithm);
-                cout << left << setw(18) << algorithm << cluster_indices.size() << endl;
+                cout << left << setw(24) << algorithm << cluster_indices.size() << endl;
             }
         }
         return 0;
@@ -192,11 +210,11 @@ int main() {
     cout << "Loaded points: " << cloud->size() << endl;
 
     if (run_all_algorithms) {
-        cout << left << setw(18) << "Algorithm" << "Clusters" << endl;
-        cout << left << setw(18) << "---------" << "--------" << endl;
+        cout << left << setw(24) << "Algorithm" << "Clusters" << endl;
+        cout << left << setw(24) << "---------" << "--------" << endl;
         for (const auto& algorithm : algorithms) {
             std::vector<pcl::PointIndices> cluster_indices = run_algorithm(cloud, algorithm);
-            cout << left << setw(18) << algorithm << cluster_indices.size() << endl;
+            cout << left << setw(24) << algorithm << cluster_indices.size() << endl;
         }
         return 0;
     }

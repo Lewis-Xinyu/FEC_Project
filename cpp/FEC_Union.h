@@ -21,7 +21,6 @@ inline bool NumberTag_FEC_Union(const PointIndex_Tag_FEC_Union& p0, const PointI
     return p0.nNumberTag < p1.nNumberTag;
 }
 
-// 3. 极速版 FEC_Union (并查集重构)
 std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int min_component_size, double tolorance, int max_n) {
     using namespace std;
     using Clock = std::chrono::steady_clock;
@@ -39,10 +38,6 @@ std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr clo
     double build_ms = std::chrono::duration<double, std::milli>(tb1 - tb0).count();
 
     const int cloud_size = static_cast<int>(cloud->size());
-
-    // ==========================================
-    // 并查集 (DSU) 初始化
-    // ==========================================
     vector<int> parent(cloud_size);
     for (int i = 0; i < cloud_size; ++i) {
         parent[i] = i; 
@@ -67,7 +62,7 @@ std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr clo
             parent[root_i] = root_j; 
         }
     };
-    // ==========================================
+  
 
     vector<int> pointIdx;
     vector<float> pointSquaredDistance;
@@ -99,9 +94,6 @@ std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr clo
         }
     }
 
-    // ==========================================
-    // 整理与提取
-    // ==========================================
     auto tf0 = Clock::now();
     vector<PointIndex_Tag_FEC_Union> indices_tags(cloud_size);
     for (int i = 0; i < cloud_size; ++i) {
@@ -109,7 +101,6 @@ std::vector<pcl::PointIndices> FEC_Union(pcl::PointCloud<pcl::PointXYZ>::Ptr clo
         indices_tags[i].nNumberTag = find_root(i); 
     }
 
-    // 排序聚合
     sort(indices_tags.begin(), indices_tags.end(), NumberTag_FEC_Union);
 
     vector<pcl::PointIndices> cluster_indices;
