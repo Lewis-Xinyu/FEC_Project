@@ -14,8 +14,6 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/visualization/pcl_visualizer.h>
-
-// 引入你的所有算法头文件
 #include "FEC.h"
 #include "FEC_Block.h"
 #include "FEC1.h"
@@ -25,6 +23,11 @@
 #include "RG.h"
 #include "FEC_Union.h"
 #include "FEC_Union_Block.h"
+#include "FEC_Union_Block_new.h"
+#include "FEC_Union_Block_new2.h"
+#include "FEC_Union_Grid_Block.h"
+#include "FEC1_improved_block_fixed.h"
+#include "Voxel_FEC1.h"
 #ifdef PCL_SEGEMENT_FEC_UNION_BLOCK_H
 #undef PCL_SEGEMENT_FEC_UNION_BLOCK_H
 #endif
@@ -38,7 +41,6 @@
 #define FECUB_DisjointSet FECUBN_DisjointSet
 #define FECUB_LocalClusterOnly FECUBN_LocalClusterOnly
 #define FEC_Union_Block FEC_Union_Block_new
-#include "FEC_Union_Block_new.h"
 #undef FECUB_PointIndexTag
 #undef FECUB_TagLess
 #undef FECUB_BlockKey
@@ -49,10 +51,6 @@
 #undef FECUB_DisjointSet
 #undef FECUB_LocalClusterOnly
 #undef FEC_Union_Block
-#include "FEC_Union_Block_new2.h"
-#include "FEC_Union_Grid_Block.h"
-#include "FEC1_improved_block_fixed.h"
-#include "Voxel_FEC1.h"
 using namespace std;
 
 struct RunMetrics {
