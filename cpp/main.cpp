@@ -9,6 +9,7 @@
 #include <optional>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
@@ -23,11 +24,6 @@
 #include "RG.h"
 #include "FEC_Union.h"
 #include "FEC_Union_Block.h"
-#include "FEC_Union_Block_new.h"
-#include "FEC_Union_Block_new2.h"
-#include "FEC_Union_Grid_Block.h"
-#include "FEC1_improved_block_fixed.h"
-#include "Voxel_FEC1.h"
 #ifdef PCL_SEGEMENT_FEC_UNION_BLOCK_H
 #undef PCL_SEGEMENT_FEC_UNION_BLOCK_H
 #endif
@@ -41,6 +37,7 @@
 #define FECUB_DisjointSet FECUBN_DisjointSet
 #define FECUB_LocalClusterOnly FECUBN_LocalClusterOnly
 #define FEC_Union_Block FEC_Union_Block_new
+#include "FEC_Union_Block_new.h"
 #undef FECUB_PointIndexTag
 #undef FECUB_TagLess
 #undef FECUB_BlockKey
@@ -51,6 +48,10 @@
 #undef FECUB_DisjointSet
 #undef FECUB_LocalClusterOnly
 #undef FEC_Union_Block
+#include "FEC_Union_Block_new2.h"
+#include "FEC_Union_Grid_Block.h"
+#include "FEC1_improved_block_fixed.h"
+#include "Voxel_FEC1.h"
 using namespace std;
 
 struct RunMetrics {
@@ -61,6 +62,35 @@ struct RunMetrics {
     double final_ms = 0.0;
     int clusters = 0;
 };
+
+static std::vector<std::string> split_csv(const std::string& text) {
+    std::vector<std::string> parts;
+    std::stringstream ss(text);
+    std::string item;
+    while (std::getline(ss, item, ',')) {
+        std::size_t begin = 0;
+        while (begin < item.size() && std::isspace(static_cast<unsigned char>(item[begin]))) {
+            ++begin;
+        }
+        std::size_t end = item.size();
+        while (end > begin && std::isspace(static_cast<unsigned char>(item[end - 1]))) {
+            --end;
+        }
+        if (end > begin) {
+            parts.push_back(item.substr(begin, end - begin));
+        }
+    }
+    return parts;
+}
+
+static bool parse_bool_arg(const std::string& value, bool fallback) {
+    std::string lower;
+    lower.reserve(value.size());
+    for (char ch : value) lower.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+    if (lower == "1" || lower == "true" || lower == "yes" || lower == "on") return true;
+    if (lower == "0" || lower == "false" || lower == "no" || lower == "off") return false;
+    return fallback;
+}
 
 static std::optional<double> extract_metric(const std::string& text, const std::string& key) {
     const std::string token = key + "= ";
@@ -134,7 +164,7 @@ void visualize_clusters(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
 // ==========================================
 // 主函数：控制中心
 // ==========================================
-int main() {
+int main(int argc, char** argv) {
     // 模式开关：
     // run_all_datasets   = true  时，按 datasets 列表依次运行所有数据集
     // run_all_algorithms = true  时，在当前数据集上依次运行所有算法
@@ -203,6 +233,61 @@ int main() {
         "./data/car.ply",
         "./data/street.ply"
     };
+
+    std::string runtime_dataset_path = single_dataset_path;
+    std::vector<std::string> runtime_algorithms = {single_algorithm};
+    std::vector<double> runtime_tolerances = {tolerance};
+    bool runtime_visualize = enable_visualization;
+
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if (arg == "--dataset" && i + 1 < argc) {
+            runtime_dataset_path = argv[++i];
+        } else if (arg == "--alg" && i + 1 < argc) {
+            runtime_algorithms = split_csv(argv[++i]);
+        } else if (arg == "--tol" && i + 1 < argc) {
+            runtime_tolerances.clear();
+            for (const auto& token : split_csv(argv[++i])) {
+                try {
+                    runtime_tolerances.push_back(std::stod(token));
+                } catch (...) {
+                    cout << "Invalid tolerance: " << token << endl;
+                    return -1;
+                }
+            }
+            if (runtime_tolerances.empty()) {
+                runtime_tolerances.push_back(tolerance);
+            }
+        } else if (arg == "--visualize" && i + 1 < argc) {
+            runtime_visualize = parse_bool_arg(argv[++i], runtime_visualize);
+        } else if (arg == "--help") {
+            cout << "Usage:\n"
+                 << "  ./cpp/build/fec_run [--dataset PATH] [--alg NAME[,NAME...]] [--tol T[,T...]] [--visualize 0|1]\n\n"
+                 << "Examples:\n"
+                 << "  ./cpp/build/fec_run\n"
+                 << "  ./cpp/build/fec_run --dataset ./data/046.ply --alg FEC_Union,FEC_Union_Block --tol 0.2\n"
+                 << "  ./cpp/build/fec_run --dataset ./data/046.ply --alg FEC_Union_Block_new,FEC_Union_Block_new2 --tol 0.1,0.2,0.3\n";
+            return 0;
+        } else {
+            cout << "Unknown argument: " << arg << endl;
+            cout << "Use --help to see supported options." << endl;
+            return -1;
+        }
+    }
+
+    if (!std::filesystem::exists(runtime_dataset_path)) {
+        std::filesystem::path fallback = std::filesystem::path("./data") / runtime_dataset_path;
+        if (std::filesystem::exists(fallback)) {
+            runtime_dataset_path = fallback.string();
+        }
+    }
+
+    for (const auto& alg : runtime_algorithms) {
+        if (std::find(algorithms.begin(), algorithms.end(), alg) == algorithms.end()) {
+            cout << "Unknown algorithm: " << alg << endl;
+            return -1;
+        }
+    }
 
     auto run_algorithm = [&](pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
                              const std::string& current_algorithm) -> std::vector<pcl::PointIndices> {
@@ -413,11 +498,11 @@ int main() {
     }
 
     // 1. 读取点云数据
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = load_cloud(single_dataset_path);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = load_cloud(runtime_dataset_path);
     if (!cloud) {
         return -1;
     }
-    const std::string dataset_name = std::filesystem::path(single_dataset_path).filename().string();
+    const std::string dataset_name = std::filesystem::path(runtime_dataset_path).filename().string();
     cout << "Dataset: " << dataset_name << endl;
     cout << "Loaded points: " << cloud->size() << endl;
 
@@ -431,19 +516,43 @@ int main() {
         return 0;
     }
 
-    cout << "Dataset: " << dataset_name << endl;
-    auto [avg, cluster_indices] = measure_algorithm(cloud, single_algorithm, true);
+    if (runtime_algorithms.size() == 1 && runtime_tolerances.size() == 1) {
+        tolerance = runtime_tolerances.front();
+        cout << "Dataset: " << dataset_name << endl;
+        cout << "Tolerance: " << std::fixed << std::setprecision(3) << tolerance << endl;
+        auto [avg, cluster_indices] = measure_algorithm(cloud, runtime_algorithms.front(), true);
 
-    cout << std::fixed << std::setprecision(3)
-         << "Average (trimmed, excluding warmup): total= " << avg.total_ms << " ms "
-         << "build= " << avg.build_ms << " ms "
-         << "search= " << avg.search_ms << " ms "
-         << "merge= " << avg.merge_ms << " ms "
-         << "final= " << avg.final_ms << " ms "
-         << "clusters= " << avg.clusters << endl;
+        cout << std::fixed << std::setprecision(3)
+             << "Average (trimmed, excluding warmup): total= " << avg.total_ms << " ms "
+             << "build= " << avg.build_ms << " ms "
+             << "search= " << avg.search_ms << " ms "
+             << "merge= " << avg.merge_ms << " ms "
+             << "final= " << avg.final_ms << " ms "
+             << "clusters= " << avg.clusters << endl;
 
-    if (enable_visualization) {
-        visualize_clusters(cloud, cluster_indices, "Algorithm Test: " + single_algorithm);
+        if (runtime_visualize) {
+            visualize_clusters(cloud, cluster_indices, "Algorithm Test: " + runtime_algorithms.front());
+        }
+        return 0;
+    }
+
+    cout << "Repeat runs: " << repeat_runs << " (warmup: " << warmup_runs << ")" << endl;
+    cout << "Average rule: drop warmup, then drop max/min by total" << endl;
+
+    for (double current_tolerance : runtime_tolerances) {
+        tolerance = current_tolerance;
+        cout << "\nTolerance: " << std::fixed << std::setprecision(3) << current_tolerance << endl;
+        for (const auto& algorithm : runtime_algorithms) {
+            auto [avg, ignored_clusters] = measure_algorithm(cloud, algorithm, false);
+            cout << std::fixed << std::setprecision(3)
+                 << algorithm
+                 << " total= " << avg.total_ms << " ms "
+                 << "build= " << avg.build_ms << " ms "
+                 << "search= " << avg.search_ms << " ms "
+                 << "merge= " << avg.merge_ms << " ms "
+                 << "final= " << avg.final_ms << " ms "
+                 << "clusters=" << avg.clusters << "\n";
+        }
     }
 
     return 0;
