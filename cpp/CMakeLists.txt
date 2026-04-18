@@ -22,3 +22,6 @@ find_package(OpenMP REQUIRED)
 # 3. 编译并链接
 add_executable(fec_run main.cpp)
 target_link_libraries(fec_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(kitti_eval_run main_kitti_eval.cpp)
+target_link_libraries(kitti_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)

@@ -22,6 +22,7 @@
 #include "EC.h"
 #include "EC_block.h"
 #include "RG.h"
+#include "FECunion.h"
 #include "FEC_Union.h"
 #include "FEC_Union_Block.h"
 #ifdef PCL_SEGEMENT_FEC_UNION_BLOCK_H
@@ -50,6 +51,7 @@
 #undef FEC_Union_Block
 #include "FEC_Union_Block_new2.h"
 #include "FEC_Union_Grid_Block.h"
+#include "FECunion_Block.h"
 #include "FEC1_improved_block_fixed.h"
 #include "Voxel_FEC1.h"
 using namespace std;
@@ -179,6 +181,7 @@ int main(int argc, char** argv) {
     // "FEC"              - 最早的 FEC，原始标签传播版本
     // "FEC1"             - 使用哈希表优化标签合并
     // "FEC1_1"           - FEC1_1 版本
+    // "FECunion"         - 新导入的 FECunion 版本
     // "FEC_Union"        - 使用并查集替代标签/哈希表合并
     // "EC"               - PCL 原生 EuclideanClusterExtraction
     // "RG"               - Region Growing
@@ -187,6 +190,7 @@ int main(int argc, char** argv) {
     // "FEC_Union_Block"  - FEC_Union 的分块并行版本
     // "FEC_Union_Block_new" - 新版 FEC_Union_Block
     // "FEC_Union_Block_new2" - 在 new 基础上继续优化 final 聚合
+    // "FECunion_Block"  - 新导入的 FECunion_Block 版本
     // "FEC_Union_Grid_Block" - FEC_Union 的网格哈希分块并行版本
     // "Voxel_FEC1"       - 基于体素哈希搜索的 FEC1 版本
     // "EC_Block"         - EC 的分块并行版本
@@ -210,6 +214,7 @@ int main(int argc, char** argv) {
         "FEC",
         "FEC1",
         "FEC1_1",
+        "FECunion",
         "FEC_Union",
         "EC",
         "RG",
@@ -218,6 +223,7 @@ int main(int argc, char** argv) {
         "FEC_Union_Block",
         "FEC_Union_Block_new",
         "FEC_Union_Block_new2",
+        "FECunion_Block",
         "FEC_Union_Grid_Block",
         "Voxel_FEC1",
         "EC_Block"
@@ -303,6 +309,9 @@ int main(int argc, char** argv) {
         if (current_algorithm == "FEC1_1") {
             return FEC1_1(cloud, min_cluster_size, tolerance, max_n);
         }
+        if (current_algorithm == "FECunion") {
+            return FECunion(cloud, min_cluster_size, tolerance, max_n);
+        }
         if (current_algorithm == "EC") {
             return EC(cloud, tolerance, min_cluster_size);
         }
@@ -323,6 +332,9 @@ int main(int argc, char** argv) {
         }
         if (current_algorithm == "FEC_Union_Block_new2") {
             return FEC_Union_Block_new2(cloud, min_cluster_size, tolerance, max_n);
+        }
+        if (current_algorithm == "FECunion_Block") {
+            return FECunion_Block(cloud, min_cluster_size, tolerance, max_n);
         }
         if (current_algorithm == "FEC_Union_Grid_Block") {
             return FEC_Union_Grid_Block(cloud, min_cluster_size, tolerance, max_n);
