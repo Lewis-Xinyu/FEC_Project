@@ -1,24 +1,24 @@
-# SemanticPOSS Report-Style Benchmark
+# SemanticPOSS 单帧去地面聚类报告
 
-## Setup
+## 实验设置
 
-- Dataset root: `/mnt/d/semanticposs`
-- Sequence: `05`
-- Ground removal: `semantic_id=22 removed`
-- Parameters: `tol=0.2`, `min_cluster_size=100`, `max_n=50`, `min_gt_points=30`
-- FPS definition: `FPS = 1000 / frame_cluster_wall_ms`, then averaged over frames
+- 数据集根目录: `/mnt/d/semanticposs`
+- 序列: `05`
+- 地面去除：聚类前删除 `semantic_id=22`
+- 聚类参数: `tol=0.2`, `min_cluster_size=100`, `max_n=50`, `min_gt_points=30`
+- FPS 定义：先逐帧计算 `FPS = 1000 / frame_cluster_wall_ms`，再对帧求平均
 
-## Summary
+## 结果汇总
 
-| Algorithm | Frames | Raw Points | Removed Ground | Points | GT | Pred | TP | FP | FN | Time(ms) | FPS | PQ | SQ | RQ | RC50 | mIoU |
+| 算法 | 帧数 | 原始点数 | 去除地面点数 | 聚类点数 | GT | Pred | TP | FP | FN | 时间(ms) | FPS | PQ | SQ | RQ | RC50 | mIoU |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 |FECunion|100|6597826|1666706|4931120|2055|4856|810|4046|1245|17.88|56.34|19.91|84.93|23.44|39.42|36.14|
 |FEC|100|6597826|1666706|4931120|2055|4856|810|4046|1245|24.60|40.92|19.91|84.93|23.44|39.42|36.14|
 
-## Metric Notes
+## 指标说明
 
 - `PQ = SQ * RQ`
-- `SQ` is the mean IoU of one-to-one matched instances with `IoU >= 0.5`.
-- `RQ = TP / (TP + 0.5 FP + 0.5 FN)`.
-- `RC50 = TP / (TP + FN)` with `IoU >= 0.5`.
-- `mIoU` is the mean best-overlap IoU over all GT instances.
+- `SQ` 表示 `IoU >= 0.5` 的一对一匹配实例的平均 IoU。
+- `RQ = TP / (TP + 0.5 FP + 0.5 FN)`。
+- `RC50 = TP / (TP + FN)`，匹配阈值为 `IoU >= 0.5`。
+- `mIoU` 表示所有 GT 实例与预测簇最佳重叠 IoU 的平均值。

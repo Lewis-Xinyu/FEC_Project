@@ -1,19 +1,58 @@
-# SemanticPOSS Single-Frame No-Ground Timing: FECunion vs FEC
+# SemanticPOSS 单帧去地面聚类时间实验报告：FECunion vs FEC
 
-## Setup
+## 实验目的
 
-- Dataset root: `/mnt/d/semanticposs`
-- Sequences: `00, 01, 02, 03, 04, 05`
-- Frames per sequence: first `100`
-- Ground removal: remove `semantic_id=22` before clustering
-- Clustering input: whole remaining frame
-- Algorithms: `FECunion`, `FEC`
-- Parameters: `tol=0.2`, `min_cluster_size=100`, `max_n=50`, `min_gt_points=30`
-- FPS definition: `FPS = 1000 / frame_cluster_wall_ms`, then averaged over frames
+本实验用于测试单帧点云在去除地面点之后，分别输入 FECunion 和 FEC 聚类算法时的运行速度。实验关注两个问题：
 
-## Summary
+1. 每个 SemanticPOSS 序列单帧点云的数量级是多少。
+2. 在相同输入点云、相同聚类参数下，FECunion 相比 FEC 能达到多少 FPS。
 
-| Sequence | Frames | Avg Raw Points / Frame | Avg Ground Removed / Frame | Avg Clustering Points / Frame | FECunion Time(ms) | FECunion FPS | FEC Time(ms) | FEC FPS | FEC/FECunion Time Ratio |
+与多帧融合实验不同，本实验不进行位姿变换，也不做多帧累积。每次只读取一帧点云，去除地面点后直接进行聚类计时，因此结果反映的是算法在典型单帧雷达点云规模上的实时性。
+
+## 数据与参数
+
+- 数据集根目录：`/mnt/d/semanticposs`
+- 测试序列：`00, 01, 02, 03, 04, 05`
+- 每个序列测试帧数：前 `100` 帧
+- 地面去除规则：聚类前删除 `semantic_id=22` 的点
+- 聚类输入：去地面后的整帧点云
+- 对比算法：`FECunion`, `FEC`
+- 聚类参数：`tol=0.2`, `min_cluster_size=100`, `max_n=50`
+- 实例评估阈值：`min_gt_points=30`
+- FPS 定义：先对每帧计算 `FPS = 1000 / frame_cluster_wall_ms`，再对 100 帧 FPS 求平均
+
+## 单帧实验流程
+
+每个序列的前 100 帧按如下流程处理：
+
+1. 读取当前帧 `.bin` 点云和 `.label` 标签。
+2. 统计原始点数，作为该帧的 raw points。
+3. 根据语义标签删除地面点，即删除 `semantic_id=22` 的点。
+4. 将剩余点云作为聚类输入，分别运行 FECunion 和 FEC。
+5. 记录每帧聚类 wall time，并计算该帧 FPS。
+6. 对 100 帧结果取平均，得到每个序列的平均点数、平均耗时和平均 FPS。
+
+由于本实验的目的主要是时间测试，因此单帧报告中虽然保留了 PQ、SQ、RQ、RC50、mIoU 等实例指标，但结论重点放在 FECunion 与 FEC 的时间差异上。
+
+## FEC 算法原理
+
+FEC 是一种基于半径邻域搜索的快速欧式聚类算法。算法先对输入点云建立 KDTree，然后从第一个点开始顺序遍历。对于每个尚未标记的点，算法以 `tol` 为半径搜索邻域点，并根据邻域中已有的标签决定当前点及邻域点所属的连通分量。
+
+如果邻域中没有已有标签，则创建一个新标签；如果邻域中已经存在一个或多个标签，则选择最小标签作为当前连通分量标签。当发现多个旧标签实际属于同一个连通区域时，FEC 会把较大的旧标签统一替换成较小标签。
+
+FEC 的核心问题在于标签合并方式：原始实现中，当两个标签需要合并时，会扫描整帧点云，把所有旧标签替换成新标签。对于单帧 4 万到 6 万点的输入，这个成本还可以接受；但随着点数增加，这种全局回扫会明显拖慢运行速度。
+
+## FECunion 算法原理
+
+FECunion 保留了 FEC 的整体框架，仍然使用 KDTree 半径搜索建立点之间的局部连通关系，但将标签合并阶段改为并查集。
+
+在 FECunion 中，每个临时标签对应并查集中的一个集合。当邻域中出现多个标签需要合并时，算法不再扫描整帧点云做标签替换，而是执行并查集的 `union` 操作。遍历结束后，再通过一次统一的 `find` 和路径压缩获得每个点的最终标签，并统计每个连通分量的大小。
+
+因此，FECunion 的主要优势来自标签合并阶段：它避免了 FEC 中频繁的整帧标签回扫，将多次标签替换转化为并查集中的集合合并。即使在单帧规模下，FECunion 也能稳定快于 FEC；在多帧融合的大规模点云上，这种优势会进一步扩大。
+
+## 总体结果
+
+| 序列 | 帧数 | 平均原始点数/帧 | 平均去除地面点数/帧 | 平均聚类点数/帧 | FECunion 时间(ms) | FECunion FPS | FEC 时间(ms) | FEC FPS | FEC/FECunion 耗时比 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | 00 | 100 | 65,826 | 19,427 | 46,399 | 17.95 | 55.79 | 23.59 | 42.43 | 1.31x |
 | 01 | 100 | 65,896 | 10,312 | 55,584 | 21.24 | 47.17 | 27.64 | 36.27 | 1.30x |
@@ -21,11 +60,19 @@
 | 03 | 100 | 69,313 | 15,837 | 53,476 | 21.79 | 45.93 | 29.63 | 33.87 | 1.36x |
 | 04 | 100 | 66,897 | 9,764 | 57,133 | 20.35 | 49.16 | 29.13 | 34.46 | 1.43x |
 | 05 | 100 | 65,978 | 16,667 | 49,311 | 17.88 | 56.34 | 24.60 | 40.92 | 1.38x |
-| Overall | 600 | 67,101 | 14,838 | 52,263 | 19.76 | 51.02 | 26.80 | 37.68 | 1.36x |
+| 总计/平均 | 600 | 67,101 | 14,838 | 52,263 | 19.76 | 51.02 | 26.80 | 37.68 | 1.36x |
 
-## Notes
+## 结果分析
 
-- `Time(ms)` is average clustering wall time per frame.
-- `FPS` is the average of per-frame FPS values reported by the evaluator.
-- `FECunion` and `FEC` have identical clustering outputs under this setup, so the speed comparison is the main signal here.
-- Sequence `03` has `GT=0` under `min_gt_points=30` for these first 100 frames, but timing and point-count statistics remain valid.
+SemanticPOSS 单帧原始点数大约在 6.6 万到 6.9 万之间。去除地面点后，实际输入聚类的点数大约在 4.6 万到 5.7 万之间，整体数量级约为 `5e4` 点/帧。
+
+在所有 6 个序列、共 600 帧上，FECunion 的平均聚类时间为 19.76 ms，对应平均 FPS 为 51.02；FEC 的平均聚类时间为 26.80 ms，对应平均 FPS 为 37.68。FECunion 相比 FEC 的平均耗时比为 1.36x，也就是 FECunion 在单帧去地面点云上约快 36%。
+
+由于单帧点数仍处于 5 万级，FEC 中标签全局回扫的代价尚未被充分放大，因此两者差距没有多帧融合实验中那么大。但从所有序列结果看，FECunion 在保持聚类输出一致的情况下稳定更快，说明并查集标签合并即使在单帧场景下也能带来可观收益。
+
+## 备注
+
+- `时间(ms)` 表示每帧聚类 wall time 的平均值。
+- `FPS` 是逐帧 FPS 的平均值，不是简单用平均时间倒推。
+- 在本实验设置下，FECunion 与 FEC 的聚类输出一致，因此主要比较速度。
+- 序列 `03` 的前 100 帧在 `min_gt_points=30` 设置下 `GT=0`，因此实例精度指标没有参考意义，但时间与点数统计仍然有效。
