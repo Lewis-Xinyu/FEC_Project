@@ -25,3 +25,24 @@ target_link_libraries(fec_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
 
 add_executable(kitti_eval_run main_kitti_eval.cpp)
 target_link_libraries(kitti_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(semanticposs_eval_run main_semanticposs_eval.cpp)
+target_link_libraries(semanticposs_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(semanticposs_noground_eval_run main_semanticposs_noground_eval.cpp)
+target_link_libraries(semanticposs_noground_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(local_report_eval_run main_local_report_eval.cpp)
+target_link_libraries(local_report_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(semanticposs_report_eval_run main_semanticposs_report_eval.cpp)
+target_link_libraries(semanticposs_report_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(semanticposs_docx_eval_run main_semanticposs_docx_eval.cpp)
+target_link_libraries(semanticposs_docx_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(semanticposs_tune_eval_run main_semanticposs_tune_eval.cpp)
+target_link_libraries(semanticposs_tune_eval_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+
+add_executable(semanticposs_fusion_time_run main_semanticposs_fusion_time.cpp)
+target_link_libraries(semanticposs_fusion_time_run ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
