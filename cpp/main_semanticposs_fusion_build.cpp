@@ -40,7 +40,7 @@ struct Args {
     std::string sequence = "00";
     std::filesystem::path out_dir = "reports/semantic_kitti_seq00_static";
     std::vector<int> targets = {500000, 1000000, 3000000};
-    double voxel_size = 0.20;
+    double voxel_size = 0.10;
     double ghost_radius = 0.0;
     int max_frames = -1;
     bool write_ply = true;

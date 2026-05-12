@@ -1,0 +1,2 @@
+sequence,frames,algorithm,avg_csf_ms,avg_cluster_ms,avg_total_ms,avg_cluster_fps,avg_total_fps,avg_nonground_points,min_nonground_points,max_nonground_points
+00,1,FECunion,97.048759,17.694638,114.743397,56.514295,8.715098,42654.000000,42654,42654

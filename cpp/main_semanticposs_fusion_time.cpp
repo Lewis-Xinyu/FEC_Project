@@ -19,8 +19,10 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include "EC.h"
 #include "FEC.h"
 #include "FECunion.h"
+#include "RG.h"
 
 namespace {
 
@@ -29,12 +31,14 @@ struct Args {
     std::filesystem::path fused_dir = "reports/semantic_kitti_seq00_static";
     std::filesystem::path out_dir;
     std::vector<int> targets;
-    std::vector<std::string> algorithms = {"FECunion", "FEC"};
+    std::vector<std::string> algorithms = {"FEC", "FECunion", "EC", "RG"};
     double tolerance = 0.2;
     int min_cluster_size = 100;
     int max_n = 50;
-    int repeat = 5;
-    int warmup = 1;
+    int repeat = 1;
+    int warmup = 0;
+    float rg_smoothness_threshold = 3.0f;
+    float rg_curvature_threshold = 1.0f;
 };
 
 struct TargetMeta {
@@ -128,6 +132,10 @@ static bool parse_args(int argc, char** argv, Args& args) {
             auto v = need(key); if (!v) return false; args.repeat = std::stoi(*v);
         } else if (key == "--warmup") {
             auto v = need(key); if (!v) return false; args.warmup = std::stoi(*v);
+        } else if (key == "--rg-smoothness") {
+            auto v = need(key); if (!v) return false; args.rg_smoothness_threshold = std::stof(*v);
+        } else if (key == "--rg-curvature") {
+            auto v = need(key); if (!v) return false; args.rg_curvature_threshold = std::stof(*v);
         } else {
             std::cerr << "Unknown argument: " << key << "\n";
             return false;
@@ -232,6 +240,10 @@ static std::vector<pcl::PointIndices> run_algorithm(
 ) {
     if (algorithm == "FECunion") return FECunion(cloud, args.min_cluster_size, args.tolerance, args.max_n);
     if (algorithm == "FEC") return FEC(cloud, args.min_cluster_size, args.tolerance, args.max_n);
+    if (algorithm == "EC") return EC(cloud, args.tolerance, args.min_cluster_size);
+    if (algorithm == "RG") {
+        return RG(cloud, args.min_cluster_size, args.max_n, args.rg_smoothness_threshold, args.rg_curvature_threshold);
+    }
     throw std::runtime_error("Unknown algorithm: " + algorithm);
 }
 
@@ -271,7 +283,11 @@ static BenchStats benchmark_one(
 
 static pcl::PointCloud<pcl::PointXYZ>::Ptr load_cloud(const std::filesystem::path& path) {
     auto cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>());
-    if (pcl::io::loadPLYFile<pcl::PointXYZ>(path.string(), *cloud) != 0) {
+    std::ostringstream captured;
+    std::streambuf* old_err = std::cerr.rdbuf(captured.rdbuf());
+    const int rc = pcl::io::loadPLYFile<pcl::PointXYZ>(path.string(), *cloud);
+    std::cerr.rdbuf(old_err);
+    if (rc != 0) {
         throw std::runtime_error("Failed to load PLY: " + path.string());
     }
     return cloud;
@@ -279,76 +295,35 @@ static pcl::PointCloud<pcl::PointXYZ>::Ptr load_cloud(const std::filesystem::pat
 
 static void write_live_csv(
     const Args& args,
+    const std::vector<TargetMeta>& metas,
     const std::vector<BenchStats>& bench
 ) {
     const auto path = args.out_dir / ("seq" + args.sequence + "_static_timing_live.csv");
     std::ofstream out(path);
     if (!out) throw std::runtime_error("Failed to write timing CSV: " + path.string());
 
-    out << "target_points,loaded_points,algorithm,best_ms,mean_ms,fps_best,clusters\n";
+    std::unordered_map<int, TargetMeta> by_target;
+    for (const auto& meta : metas) by_target[meta.target] = meta;
+
+    out << "sequence,target_points,loaded_points,frames_used,car,tree,building,bbox_x,bbox_y,bbox_z,algorithm,best_ms,mean_ms,fps_best,clusters,ply_path\n";
     for (const auto& row : bench) {
-        out << row.target << ","
+        const auto& meta = by_target.at(row.target);
+        out << args.sequence << ","
+            << row.target << ","
             << row.points << ","
+            << meta.frames_used << ","
+            << meta.car << ","
+            << meta.tree << ","
+            << meta.building << ","
+            << std::fixed << std::setprecision(6) << meta.bbox_x << ","
+            << meta.bbox_y << ","
+            << meta.bbox_z << ","
             << row.algorithm << ","
-            << std::fixed << std::setprecision(6) << row.best_ms << ","
+            << row.best_ms << ","
             << row.mean_ms << ","
             << row.fps << ","
-            << row.clusters << "\n";
-    }
-}
-
-static void write_report(
-    const Args& args,
-    const std::vector<TargetMeta>& metas,
-    const std::vector<BenchStats>& bench
-) {
-    const auto path = args.out_dir / ("seq" + args.sequence + "_static_timing_report.md");
-    std::ofstream out(path);
-    if (!out) throw std::runtime_error("Failed to write timing report: " + path.string());
-
-    out << "# SemanticKITTI seq" << args.sequence << " static fusion timing report\n\n";
-    out << "## Source\n\n";
-    out << "- Fused directory: `" << args.fused_dir.string() << "`\n";
-    out << "- Manifest: `" << manifest_path(args).string() << "`\n";
-    out << "- Algorithms: `";
-    for (std::size_t i = 0; i < args.algorithms.size(); ++i) {
-        if (i) out << ", ";
-        out << args.algorithms[i];
-    }
-    out << "`\n";
-    out << "- Parameters: `tol=" << args.tolerance
-        << ", min_cluster_size=" << args.min_cluster_size
-        << ", max_n=" << args.max_n
-        << ", repeat=" << args.repeat
-        << ", warmup=" << args.warmup << "`\n\n";
-
-    out << "## Loaded Fused Samples\n\n";
-    out << "| Target points | Frames used | Car | Tree | Building | BBox X m | BBox Y m | BBox Z m | PLY |\n";
-    out << "|---:|---:|---:|---:|---:|---:|---:|---:|---|\n";
-    for (const auto& meta : metas) {
-        out << "|" << meta.target
-            << "|" << meta.frames_used
-            << "|" << meta.car
-            << "|" << meta.tree
-            << "|" << meta.building
-            << "|" << std::fixed << std::setprecision(3) << meta.bbox_x
-            << "|" << meta.bbox_y
-            << "|" << meta.bbox_z
-            << "|`" << meta.ply_path.string() << "`|\n";
-    }
-    out << "\n";
-
-    out << "## Timing\n\n";
-    out << "| Target points | Loaded points | Algorithm | Best ms | Mean ms | FPS(best) | Clusters |\n";
-    out << "|---:|---:|---|---:|---:|---:|---:|\n";
-    for (const auto& row : bench) {
-        out << "|" << row.target
-            << "|" << row.points
-            << "|" << row.algorithm
-            << "|" << std::fixed << std::setprecision(3) << row.best_ms
-            << "|" << row.mean_ms
-            << "|" << row.fps
-            << "|" << row.clusters << "|\n";
+            << row.clusters << ","
+            << meta.ply_path.string() << "\n";
     }
 }
 
@@ -366,13 +341,15 @@ int main(int argc, char** argv) {
 
         std::cout << "Fused directory: " << args.fused_dir << "\n";
         std::cout << "Loaded targets: " << metas.size() << "\n";
+        std::cout << "Algorithms:";
+        for (const auto& algorithm : args.algorithms) std::cout << " " << algorithm;
+        std::cout << "\n";
 
         for (const auto& meta : metas) {
-            auto cloud = load_cloud(meta.ply_path);
             std::cout << "Target " << meta.target
-                      << " points, file=" << meta.ply_path
-                      << ", loaded=" << cloud->size() << "\n";
+                      << " points, file=" << meta.ply_path << "\n";
             for (const auto& algorithm : args.algorithms) {
+                auto cloud = load_cloud(meta.ply_path);
                 auto stats = benchmark_one(cloud, meta, algorithm, args);
                 bench.push_back(stats);
                 std::cout << std::fixed << std::setprecision(3)
@@ -383,9 +360,8 @@ int main(int argc, char** argv) {
             }
         }
 
-        write_live_csv(args, bench);
-        write_report(args, metas, bench);
-        std::cout << "Report: " << (args.out_dir / ("seq" + args.sequence + "_static_timing_report.md")) << "\n";
+        write_live_csv(args, metas, bench);
+        std::cout << "CSV: " << (args.out_dir / ("seq" + args.sequence + "_static_timing_live.csv")) << "\n";
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";

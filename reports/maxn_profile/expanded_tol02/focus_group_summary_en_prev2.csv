@@ -1,0 +1,6 @@
+group,count,avg_total_ms_0,avg_total_ms_50,avg_delta_total_ms_50_minus_0,avg_search_ms_0,avg_search_ms_50,avg_delta_search_ms_50_minus_0,avg_relabel_trigger_count_0,avg_relabel_trigger_count_50,avg_delta_relabel_trigger_count_50_minus_0
+fusion,7,6219.764754,6452.067751,232.302997,0.001976,0.001987,0.000010,12949,12948,-0
+single-frame,30,27.071941,26.809997,-0.261944,0.000811,0.000838,0.000026,550,551,1
+single-frame:00,10,23.854934,24.404764,0.549831,0.000976,0.001061,0.000085,329,331,1
+single-frame:08,10,19.556957,19.208478,-0.348479,0.000617,0.000613,-0.000004,380,381,1
+single-frame:09,10,37.803932,36.816749,-0.987183,0.000841,0.000839,-0.000002,942,942,0

@@ -1,0 +1,2 @@
+algorithm,max_n,repeats,trim_each_side,valid_frames,skipped_frames,avg_ms,avg_fps,avg_nonground_points,min_nonground_points,max_nonground_points
+FECunion,0,7,1,3,0,27.335185,36.582888,57841.000000,56795,58860

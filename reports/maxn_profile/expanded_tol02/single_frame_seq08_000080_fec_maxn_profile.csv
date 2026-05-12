@@ -1,0 +1,3 @@
+sample,mode,sequence,frame_id,target_points,points,max_n,min_cluster_size,tolerance,total_ms,build_ms,search_ms,merge_ms,final_ms,search_calls,avg_search_ms,total_neighbors_returned,avg_neighbors_returned,max_neighbors_returned,saturation_count,saturation_rate,neighbor_scan_pass1,neighbor_scan_pass2,relabel_trigger_count,relabel_point_visits,clusters,clustered_points
+single_frame_seq08_000080,single-frame,08,000080,0,47406,0,100,0.200000,18.548810,3.416995,9.868384,3.034803,1.413563,15164,0.000651,87672,5.781588,464,0,0.000000,87672,87672,277,13131462,31,25701
+single_frame_seq08_000080,single-frame,08,000080,0,47406,50,100,0.200000,19.391459,2.891196,11.026500,3.186208,1.413282,15644,0.000705,86032,5.499361,50,805,0.051457,86032,86032,279,13226274,31,25687

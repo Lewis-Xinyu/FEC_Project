@@ -1,0 +1,5 @@
+sequence,target_points,loaded_points,frames_used,car,tree,building,bbox_x,bbox_y,bbox_z,algorithm,best_ms,mean_ms,fps_best,clusters,ply_path
+00,50000,50000,3,3568,31046,15386,68.269000,5.795000,100.897000,FEC,24.247474,24.247474,41.241409,39,reports/semantic_kitti_seq00_static/seq00_static_50k.ply
+00,50000,50000,3,3568,31046,15386,68.269000,5.795000,100.897000,FECunion,15.490044,15.490044,64.557596,39,reports/semantic_kitti_seq00_static/seq00_static_50k.ply
+00,50000,50000,3,3568,31046,15386,68.269000,5.795000,100.897000,EC,60.475495,60.475495,16.535623,43,reports/semantic_kitti_seq00_static/seq00_static_50k.ply
+00,50000,50000,3,3568,31046,15386,68.269000,5.795000,100.897000,RG,319.997178,319.997178,3.125028,39,reports/semantic_kitti_seq00_static/seq00_static_50k.ply

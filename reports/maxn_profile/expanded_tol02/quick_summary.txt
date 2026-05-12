@@ -1,0 +1,7 @@
+zero_faster_samples=19
+fifty_faster_samples=18
+ties=0
+avg_saturation_rate_50=0.038352
+samples=37
+single_frame_samples=30
+fusion_samples=7

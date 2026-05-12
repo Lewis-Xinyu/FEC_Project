@@ -1,0 +1,2 @@
+algorithm,max_n,repeats,trim_each_side,valid_frames,skipped_frames,avg_ms,avg_fps,avg_nonground_points,min_nonground_points,max_nonground_points
+FEC,50,7,1,23201,0,27.114463,36.880686,68844.194690,17507,114154

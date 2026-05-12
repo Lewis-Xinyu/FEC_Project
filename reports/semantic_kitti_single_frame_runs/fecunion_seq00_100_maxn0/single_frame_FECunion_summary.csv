@@ -1,0 +1,2 @@
+sequence,frames,skipped_frames,algorithm,avg_ms,avg_fps,avg_nonground_points,min_nonground_points,max_nonground_points
+00,100,0,FECunion,19.363416,51.643780,71208.370000,56795,76872

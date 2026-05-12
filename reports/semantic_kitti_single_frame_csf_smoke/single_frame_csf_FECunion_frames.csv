@@ -1,0 +1,2 @@
+sequence,frame_id,raw_points,removed_ground_points,nonground_points,algorithm,csf_ms,cluster_ms,total_ms,cluster_fps,total_fps,clusters
+00,000000,124668,82014,42654,FECunion,97.048759,17.694638,114.743397,56.514295,8.715098,40

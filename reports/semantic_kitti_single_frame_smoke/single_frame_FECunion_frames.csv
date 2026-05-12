@@ -1,0 +1,4 @@
+sequence,frame_id,raw_points,removed_ground_points,nonground_points,algorithm,ms,fps,clusters
+00,000000,124668,67873,56795,FECunion,17.341002,57.666795,42
+00,000001,124605,66737,57868,FECunion,17.037044,58.695628,41
+00,000002,124478,65618,58860,FECunion,17.021274,58.750009,38
